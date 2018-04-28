@@ -1,7 +1,7 @@
-var data  = require('../data/data.json');
+var data  = require('../data/data.json') ;
+var Hotel = require('../Modelos/hotel') ;
 
 function ListHoteles(req,res) {
-    let valor = req.params;
     return res.status(200).send({
         data
     });
@@ -9,8 +9,15 @@ function ListHoteles(req,res) {
 
 function idHotel(req,res) {
     let valor = req.params;
+    
+
+    let filtrado = data.filter(i =>
+        ( i.name === "Hotel Stefanos")        
+    );
+
+
     return res.status(200).send({
-        valor
+        filtrado 
     });
 }
 
