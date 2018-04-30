@@ -4,16 +4,23 @@ var ref = db.ref();
 
 var data;
 
-function ListHoteles(req, res) {
 
+function getBase64Image(img) {
+    let fileReader = new FileReader();
+    fileReader.addEventListener('load', function(evt){
+      callback(fileReader.result);
+    });
+    fileReader.readAsDataURL(img);
+  }
+  
+
+function ListHoteles(req, res) {
     ref.once("value", function (snapshot) {
         data = snapshot.val();
         return res.status(200).send({
             data
         });
     });
-
-
 }
 
 function BuscarHotelFiltros(req, res) {
