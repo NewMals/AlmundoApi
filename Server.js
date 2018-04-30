@@ -2,7 +2,7 @@ var express = require('express');
 
 var controlador = require('./Controladores/ControllerHoteles')
 var server = express();
-var port = process.env.port || 5000;
+const PORT = process.env.PORT || 9000;
 
 const bodyParser = require("body-parser");
 
@@ -25,8 +25,8 @@ server.use('/', cors);
 
 server.use('/', controlador);
 
-server.listen(port, () => {
-    console.log('servidor corriendo', port);
+server.listen(PORT, () => {
+    console.log('servidor corriendo', PORT);
 });
 
 
