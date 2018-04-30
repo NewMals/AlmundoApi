@@ -4,6 +4,14 @@ var controlador = require('./Controladores/ControllerHoteles')
 var server = express();
 var port = process.env.port || 9000;
 
+const bodyParser = require("body-parser");
+
+server.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+server.use(bodyParser.json());
+
 
 function cors(req, res, next){
     res.setHeader('Access-Control-Allow-Origin', '*');

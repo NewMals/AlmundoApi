@@ -1,27 +1,118 @@
-var data  = require('../data/data.json') ;
-var Hotel = require('../Modelos/hotel') ;
+var admin = require('../Settings/ConexionFireBase')
+var db = admin.database();
+var ref = db.ref();
 
-function ListHoteles(req,res) {
-    return res.status(200).send({
-        data
+var data;
+
+function ListHoteles(req, res) {
+
+    ref.once("value", function (snapshot) {
+        data = snapshot.val();
+        return res.status(200).send({
+            data
+        });
+    });
+
+
+}
+
+function BuscarHotelFiltros(req, res) {
+    let filtros = req.body;
+    let Lista;
+
+    ref.once("value", function (snapshot) {
+        data = snapshot.val();
+
+        if (filtros.estrellas.indexOf(0) != 0 || filtros.nombre !== "") {
+            Lista = data.filter(i =>
+                ((i.name.toLowerCase().indexOf(filtros.nombre.toLowerCase()) !== -1) && filtros.nombre !== "")
+                || (filtros.estrellas.find(start => start === i.stars))
+            );
+        } else {
+            Lista = data;
+        }
+        return res.status(200).send({
+            Lista
+        });
     });
 }
 
-function idHotel(req,res) {
-    let valor = req.params;
-    
 
-    let filtrado = data.filter(i =>
-        ( i.name === "Hotel Stefanos")        
-    );
+function BuscarHotelId(req, res) {
+    let valor = req.params.id;
+    let Lista;
 
+    ref.once("value", function (snapshot) {
+        data = snapshot.val();
+        Lista = data.filter(i =>
+            i.id === valor
+        );
+        return res.status(200).send({
+            Lista
+        });
+    });
+}
 
-    return res.status(200).send({
-        filtrado 
+function CrearActualizarHotel(req, res) {
+
+    let hotel = req.body;
+
+    // let hotel = {
+    //     id: "1",
+    //     name: "Manantial",
+    //     starts: 3,
+    //     price: 10000,
+    //     image: "",
+    //     amenities: ["safety-box"]
+    // }
+
+    ref.once("value", function (snapshot) {
+        data = snapshot.val();
+        let estado = "";
+        let existeHotel = data.findIndex(i => i.id === hotel.id);
+
+        if (existeHotel >= 0) {
+            data[existeHotel] = hotel;
+            estado = "Actualizado";
+        } else {
+            data.push(hotel);
+            estado = "creado";
+        }
+
+        ref.set(data);
+        return res.status(200).send({
+            hotel,
+            estado
+        });
+
+    });
+
+}
+
+function EliminarHotel(req, res) {
+    let idHotel = req.params.id;
+
+    ref.once("value", function (snapshot) {
+        data = snapshot.val();
+        let eliminarIndex = data.findIndex(i => i.id === idHotel);
+        let estado;
+        if (eliminarIndex >= 0) {
+            data.splice(data.findIndex(i => i.id === idHotel), 1);
+            ref.set(data);
+            estado = "Hotel eliminado";
+        }else {
+            estado = "el id ingresado no corresponde a un hotel";
+        }
+        return res.status(200).send({
+            estado
+        });
     });
 }
 
 module.exports = {
     ListHoteles,
-    idHotel
+    BuscarHotelFiltros,
+    BuscarHotelId,
+    CrearActualizarHotel,
+    EliminarHotel
 };
